@@ -34,7 +34,7 @@ class ConnectFourBoard :
         succs = list()
         for j in range(7):
             find = False
-            for i in range(5, 0, -1):
+            for i in range(5, -1, -1):
                 if self.board[i][j]=='_':
                     find=True
                     successor = deepcopy(self)
@@ -122,7 +122,7 @@ class Play:
         pass
     @staticmethod
     def computerTurn(state) :
-        NextAction , NextValue = Play.minimaxAlphaBetaPruning(state,2,-inf,+inf,MAX)
+        NextAction , NextValue = Play.minimaxAlphaBetaPruning(state,3,-inf,+inf,MAX)
         return NextAction
 
     @staticmethod
@@ -138,7 +138,7 @@ class Play:
     def play(state,Turn):
         if Turn == MAX:
             print("AI")
-            play_col , play_row = Play.computerTurn(state)
+            play_row,play_col  = Play.computerTurn(state)
         else :
             print("Random")
             play_col , play_row = Play.playrandom(state)
@@ -147,7 +147,7 @@ class Play:
         return play_col , play_row
     @staticmethod
     def minimaxAlphaBetaPruning(state, depthlim, alpha=-inf, beta=+inf, piece=MAX):
-        if state.depth < depthlim or not state.gameOver(state.piece):
+        if state.depth < depthlim :
             if piece==MAX:
                 state.value = -inf
                 state.alpha = -inf
@@ -158,7 +158,10 @@ class Play:
                     state.alpha = max(state.value,alpha)
                     if state.value == NextValue:state.NextAction = NextAction
                     if state.value >=beta:
-                        return state.Action,state.value 
+                        if state.depth == 0:
+                            return state.NextAction , state.value
+                        else:
+                            return state.Action,state.value 
             else:
                 state.value = inf
                 state.alpha = -inf
@@ -169,7 +172,10 @@ class Play:
                     state.beta = min(state.value,beta)
                     if state.value == NextValue:state.NextAction = NextAction
                     if state.value <=alpha:
-                        return state.Action,state.value
+                        if state.depth == 0:
+                            return state.NextAction , state.value
+                        else:
+                            return state.Action,state.value
         if state.gameOver(state.piece):
             if state.Tie():
                 state.value = 0
@@ -177,7 +183,10 @@ class Play:
                 state.value = state.Win_Value(state.piece)
         else :
             state.value = state.heuristicEval(state.piece)
-        return state.Action,state.value    
+        if state.depth == 0:
+            return state.NextAction , state.value
+        else:
+            return state.Action,state.value    
 
 def main():
     playing = True
